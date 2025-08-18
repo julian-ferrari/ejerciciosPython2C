@@ -102,6 +102,7 @@ def es_completo(grafo_lista):
     Ejemplo formato salida:
     	True
     '''
+    '''
     vertices, aristas = grafo_lista
     n = len(vertices)
     e = len(aristas)
@@ -109,7 +110,19 @@ def es_completo(grafo_lista):
     max_aristas = ((n * (n+1)) / 2)
 
     return e == max_aristas
-    	
+    '''
+    vertices, aristas = grafo_lista
+    n = len(vertices)
+    aristas_set = set(aristas)
+
+    # Recorremos todos los pares posibles de vértices distintos
+    for i in range(n):
+        for j in range(i + 1, n):
+            u, v = vertices[i], vertices[j]
+            # Para considerar grafos no dirigidos, verificamos ambas direcciones
+            if (u, v) not in aristas_set and (v, u) not in aristas_set:
+                return False
+    return True
 def aristas_de(grafo, vertice):
     '''
     Dado un grafo en representacion de lista, devuelva todas las aristas salientes desde un vértice dado
@@ -119,10 +132,13 @@ def aristas_de(grafo, vertice):
     Ejemplo formato salida:
     	[('A', 'B'), ('A', 'C')]
     '''
+    '''
     vertices, aristas = grafo
     
     return [arista for arista in aristas if arista[0] == vertice]
-
+    '''
+    _, aristas = grafo
+    return [a for a in aristas if vertice in a]
 def grafo_inducido(grafo, subconjunto_vertices):
     '''
     Dado un grafo en representacion de lista, y un subconjunto de vertices,
