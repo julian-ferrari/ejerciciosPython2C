@@ -1,18 +1,23 @@
 def dijkstra_hasta(grafo, origen, destino):
     """
-    Algoritmo de Dijkstra (versión básica sin cola de prioridad).
-    Calcula la distancia mínima desde 'origen' hasta 'destino'.
+    Algoritmo de Dijkstra que retorna tanto la distancia como el camino.
+    
     Entrada:
         grafo: diccionario {vertice: [(adyacente, peso), ...]}
         origen: vértice inicial
         destino: vértice final
     
     Retorna:
-        distancia mínima (int/float) o float("inf") si no hay camino
+        tupla (distancia, camino) donde:
+        - distancia: distancia mínima (int/float) o float("inf") si no hay camino
+        - camino: lista con el camino más corto, o [] si no hay camino
     """
-    # Inicializar distancias: infinito para todos los vértices excepto el origen
+    # Inicializar distancias
     distancias = {vertice: float("inf") for vertice in grafo}
     distancias[origen] = 0
+    
+    # Diccionario para reconstruir el camino
+    predecessores = {vertice: None for vertice in grafo}
     
     # Conjunto de vértices visitados
     visitados = set()
@@ -34,9 +39,20 @@ def dijkstra_hasta(grafo, origen, destino):
         # Marcar como visitado
         visitados.add(vertice_actual)
         
-        # Si llegamos al destino, retornar la distancia
+        # Si llegamos al destino, reconstruir y retornar el camino
         if vertice_actual == destino:
-            return distancias[destino]
+            camino = []
+            actual = destino
+            
+            # Reconstruir camino desde destino hasta origen
+            while actual is not None:
+                camino.append(actual)
+                actual = predecessores[actual]
+            
+            # Invertir para tener camino de origen a destino
+            camino.reverse()
+            
+            return distancias[destino], camino
         
         # Actualizar distancias a vértices adyacentes
         for adyacente, peso in grafo[vertice_actual]:
@@ -44,14 +60,14 @@ def dijkstra_hasta(grafo, origen, destino):
                 nueva_distancia = distancias[vertice_actual] + peso
                 if nueva_distancia < distancias[adyacente]:
                     distancias[adyacente] = nueva_distancia
+                    predecessores[adyacente] = vertice_actual  # Guardar predecesor
     
-    # Retornar la distancia al destino (puede ser infinito si no hay camino)
-    return distancias[destino]
+    # Si no hay camino, retornar infinito y camino vacío
+    return distancias[destino], []
 
 
-# Ejemplo de uso:
+# Ejemplo de uso
 if __name__ == "__main__":
-    # Grafo de ejemplo
     grafo_ejemplo = {
         'A': [('B', 4), ('C', 2)],
         'B': [('C', 1), ('D', 5)],
@@ -60,12 +76,11 @@ if __name__ == "__main__":
         'E': []
     }
     
-    # Pruebas
-    print(f"Distancia de A a E: {dijkstra_hasta(grafo_ejemplo, 'A', 'E')}")  # 8
-    print(f"Distancia de A a D: {dijkstra_hasta(grafo_ejemplo, 'A', 'D')}")  # 7
-    print(f"Distancia de B a E: {dijkstra_hasta(grafo_ejemplo, 'B', 'E')}")  # 7
+    distancia, camino = dijkstra_hasta(grafo_ejemplo, 'A', 'E')
+    print(f"Distancia: {distancia}")
+    print(f"Camino: {' -> '.join(camino)}")
     
-    # Ejemplo sin camino
+    # Prueba sin camino
     grafo_desconectado = {
         'A': [('B', 1)],
         'B': [],
@@ -73,4 +88,6 @@ if __name__ == "__main__":
         'D': []
     }
     
-    print(f"Distancia de A a C: {dijkstra_hasta(grafo_desconectado, 'A', 'C')}")  # inf
+    distancia, camino = dijkstra_hasta(grafo_desconectado, 'A', 'C')
+    print(f"Distancia A->C: {distancia}")
+    print(f"Camino A->C: {camino}")
